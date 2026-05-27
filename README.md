@@ -34,7 +34,7 @@ Build an end-to-end analytics project that analyzes:
 | Tool | Purpose |
 | --- | --- |
 | SQL | Data exploration, KPI calculation, segmentation, trend analysis |
-| Python | Data cleaning, exploratory data analysis, feature engineering |
+| Python | Data cleaning, exploratory data analysis, charts, feature engineering |
 | Power BI | Dashboard development and interactive business reporting |
 | Excel | Source data storage |
 | GitHub | Project documentation and version control |
@@ -78,6 +78,7 @@ E-Commerce-Data-Analysis-main/
 ├── sql/
 │   └── ecommerce_analysis.sql
 ├── python/
+│   ├── analysis.ipynb
 │   └── ecommerce_eda.py
 ├── docs/
 │   └── data_dictionary.md
@@ -125,6 +126,22 @@ E-Commerce-Data-Analysis-main/
 - Compared profit margins across discount ranges.
 - Identified cases where high discounts reduced profitability.
 - Highlighted categories and regions sensitive to discounting.
+
+### 7. Advanced SQL Analysis
+
+- Used CTEs to structure multi-step analysis.
+- Used joins to combine orders, returns, and regional manager data.
+- Used subqueries to identify customers above average revenue.
+- Used window functions for ranking, running totals, and year-over-year growth.
+- Calculated sales and profit contribution by market, category, and sub-category.
+
+### 8. Python EDA Notebook
+
+- Cleaned and standardized dataset columns.
+- Engineered date, shipping, return, discount, and profit-margin features.
+- Calculated business KPIs.
+- Created charts for sales trend, category performance, market performance, discount impact, and customer segment analysis.
+- Added written business insights directly inside the notebook.
 
 ## Business Insights
 
@@ -181,8 +198,14 @@ pip install -r requirements.txt
 python python/ecommerce_eda.py
 ```
 
-5. Open `E-Commerce Data Analysis.pbix` in Power BI Desktop to explore the dashboard.
-6. Review `E-Commerce Data Analysis.pdf` for the exported dashboard report.
+5. Open the notebook:
+
+```bash
+jupyter notebook python/analysis.ipynb
+```
+
+6. Open `E-Commerce Data Analysis.pbix` in Power BI Desktop to explore the dashboard.
+7. Review `E-Commerce Data Analysis.pdf` for the exported dashboard report.
 
 ## Project Files
 
@@ -192,6 +215,7 @@ python python/ecommerce_eda.py
 | `E-Commerce Data Analysis.pdf` | Exported dashboard report |
 | `E-Commerce Data Analysis_page.jpg` | Dashboard preview image |
 | `Data & Resources/ECOMM DATA.xlsx` | Source dataset |
-| `sql/ecommerce_analysis.sql` | SQL business analysis queries |
+| `sql/ecommerce_analysis.sql` | SQL business analysis queries with CTEs, joins, subqueries, rankings, and window functions |
+| `python/analysis.ipynb` | Python EDA notebook with cleaning, KPIs, charts, and insights |
 | `python/ecommerce_eda.py` | Python EDA and feature engineering script |
 | `docs/data_dictionary.md` | Data dictionary |
