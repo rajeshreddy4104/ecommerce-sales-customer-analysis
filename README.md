@@ -4,6 +4,8 @@
 
 This project analyzes global e-commerce order data to understand sales performance, customer behavior, category trends, profitability, regional performance, and discount impact. The original Power BI dashboard has been expanded into an end-to-end analytics portfolio project using SQL, Python, and Power BI.
 
+The business objective is to help leadership identify where revenue is growing, where profit is leaking, which customer/product groups deserve attention, and how discounting and shipping decisions affect margins.
+
 The analysis helps answer business questions such as:
 
 - Which markets, countries, and states generate the most revenue?
@@ -81,7 +83,8 @@ E-Commerce-Data-Analysis-main/
 │   ├── analysis.ipynb
 │   └── ecommerce_eda.py
 ├── docs/
-│   └── data_dictionary.md
+│   ├── data_dictionary.md
+│   └── data_quality_and_feature_engineering.md
 ├── E-Commerce Data Analysis.pbix
 ├── E-Commerce Data Analysis.pdf
 ├── E-Commerce Data Analysis_page.jpg
@@ -138,10 +141,20 @@ E-Commerce-Data-Analysis-main/
 ### 8. Python EDA Notebook
 
 - Cleaned and standardized dataset columns.
+- Performed null, duplicate, datatype, outlier, and category validation checks.
 - Engineered date, shipping, return, discount, and profit-margin features.
 - Calculated business KPIs.
 - Created charts for sales trend, category performance, market performance, discount impact, and customer segment analysis.
 - Added written business insights directly inside the notebook.
+
+### 9. Data Cleaning & Feature Engineering
+
+- Checked null values across all key fields.
+- Checked duplicate rows and duplicate order/product line items.
+- Converted order and ship dates into datetime fields.
+- Flagged sales, profit, discount, quantity, and shipping-cost outliers using the IQR method.
+- Standardized category, segment, market, region, and ship-mode labels.
+- Created `order_year`, `order_month`, `shipping_delay`, `profit_margin`, `customer_segment`, `sales_bucket`, `discount_band`, and `is_returned`.
 
 ## Business Insights
 
@@ -151,6 +164,8 @@ E-Commerce-Data-Analysis-main/
 - **The United States is the top country by sales**, followed by Australia and France.
 - **England and California are among the strongest state-level performers.**
 - **Discounting requires careful control**, because higher discounts can reduce or reverse profit margins.
+- **High sales should not be treated as success by itself**; category, market, and customer performance must be evaluated together with profit margin.
+- **Returns and shipping cost are operational levers** that can directly affect both customer experience and profitability.
 
 ## Recommendations
 
@@ -160,6 +175,10 @@ E-Commerce-Data-Analysis-main/
 - Optimize shipping strategy by monitoring Standard Class volume and shipping cost.
 - Focus category-level strategy on Technology growth while improving Furniture profitability.
 - Track returned orders to identify product, region, or shipping-related quality issues.
+
+## Business Conclusion
+
+The dashboard and analysis show that the business has strong global revenue potential, but profitability depends on disciplined discounting, product-level margin review, and regional execution. The most valuable next step is to combine sales growth targets with margin guardrails so that expansion does not come at the cost of profit.
 
 ## Power BI Dashboard Features
 
@@ -219,3 +238,4 @@ jupyter notebook python/analysis.ipynb
 | `python/analysis.ipynb` | Python EDA notebook with cleaning, KPIs, charts, and insights |
 | `python/ecommerce_eda.py` | Python EDA and feature engineering script |
 | `docs/data_dictionary.md` | Data dictionary |
+| `docs/data_quality_and_feature_engineering.md` | Data cleaning checks and engineered feature documentation |

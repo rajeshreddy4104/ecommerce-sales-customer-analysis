@@ -40,13 +40,24 @@ def load_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
 def add_features(orders: pd.DataFrame, returns: pd.DataFrame) -> pd.DataFrame:
     orders = orders.copy()
+
+    text_columns = ["category", "sub_category", "segment", "market", "region", "ship_mode"]
+    for column in text_columns:
+        orders[column] = orders[column].astype(str).str.strip().str.title()
+
     orders["order_date"] = pd.to_datetime(orders["order_date"])
     orders["ship_date"] = pd.to_datetime(orders["ship_date"])
     orders["order_year"] = orders["order_date"].dt.year
     orders["order_month"] = orders["order_date"].dt.month
     orders["order_month_name"] = orders["order_date"].dt.strftime("%b")
-    orders["ship_days"] = (orders["ship_date"] - orders["order_date"]).dt.days
+    orders["shipping_delay"] = (orders["ship_date"] - orders["order_date"]).dt.days
     orders["profit_margin"] = orders["profit"] / orders["sales"]
+    orders["customer_segment"] = orders["segment"]
+    orders["sales_bucket"] = pd.cut(
+        orders["sales"],
+        bins=[-0.01, 100, 500, 1000, float("inf")],
+        labels=["Low", "Medium", "High", "Premium"],
+    )
 
     returned_orders = set(returns["order_id"].dropna())
     orders["is_returned"] = orders["order_id"].isin(returned_orders)
@@ -59,6 +70,37 @@ def add_features(orders: pd.DataFrame, returns: pd.DataFrame) -> pd.DataFrame:
     return orders
 
 
+def data_quality_report(orders: pd.DataFrame) -> None:
+    numeric_columns = ["sales", "quantity", "discount", "shipping_cost", "profit"]
+
+    print_section("Data Quality Checks")
+    print("Null values by column:")
+    print(orders.isna().sum().sort_values(ascending=False).head(10))
+
+    print("\nDuplicate full rows:")
+    print(orders.duplicated().sum())
+
+    print("\nDuplicate order/product line checks:")
+    print(orders.duplicated(subset=["order_id", "product_id", "product_name"]).sum())
+
+    print("\nData types:")
+    print(orders.dtypes)
+
+    print("\nCategory standardization checks:")
+    for column in ["category", "segment", "market", "ship_mode"]:
+        print(f"{column}: {sorted(orders[column].dropna().unique())}")
+
+    print("\nOutlier check using IQR bounds:")
+    for column in numeric_columns:
+        q1 = orders[column].quantile(0.25)
+        q3 = orders[column].quantile(0.75)
+        iqr = q3 - q1
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
+        outliers = orders[(orders[column] < lower) | (orders[column] > upper)]
+        print(f"{column}: {len(outliers):,} potential outliers")
+
+
 def print_section(title: str) -> None:
     print(f"\n{'=' * 80}\n{title}\n{'=' * 80}")
 
@@ -66,6 +108,7 @@ def print_section(title: str) -> None:
 def main() -> None:
     orders, returns, people = load_data()
     orders = add_features(orders, returns)
+    data_quality_report(orders)
 
     print_section("Dataset Shape")
     print(f"Orders rows: {orders.shape[0]:,}")
@@ -112,7 +155,7 @@ def main() -> None:
 
     print_section("Customer Segment Performance")
     print(
-        orders.groupby("segment")
+        orders.groupby("customer_segment")
         .agg(
             customers=("customer_id", "nunique"),
             orders=("order_id", "nunique"),
@@ -121,6 +164,14 @@ def main() -> None:
         )
         .sort_values("sales", ascending=False)
         .round(2)
+    )
+
+    print_section("Sales Bucket Performance")
+    print(
+        orders.groupby("sales_bucket", observed=False)
+        .agg(line_items=("order_id", "count"), sales=("sales", "sum"), profit=("profit", "sum"))
+        .assign(profit_margin=lambda df: df["profit"] / df["sales"])
+        .round(4)
     )
 
     print_section("Discount Impact")
