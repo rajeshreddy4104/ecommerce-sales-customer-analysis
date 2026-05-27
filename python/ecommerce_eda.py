@@ -182,6 +182,39 @@ def main() -> None:
         .round(2)
     )
 
+    print_section("Top 10 Customers by Sales")
+    customer_summary = (
+        orders.groupby(["customer_id", "customer_name", "customer_segment"])
+        .agg(
+            orders=("order_id", "nunique"),
+            sales=("sales", "sum"),
+            profit=("profit", "sum"),
+            quantity=("quantity", "sum"),
+        )
+        .assign(
+            avg_order_value=lambda df: df["sales"] / df["orders"],
+            basic_clv=lambda df: df["sales"],
+            profit_margin=lambda df: df["profit"] / df["sales"],
+            is_repeat_customer=lambda df: df["orders"] > 1,
+        )
+        .sort_values("sales", ascending=False)
+    )
+    print(customer_summary.head(10).round(4))
+
+    print_section("Repeat Customer Analysis")
+    repeat_summary = (
+        customer_summary.reset_index()
+        .groupby("is_repeat_customer")
+        .agg(
+            customers=("customer_id", "nunique"),
+            sales=("sales", "sum"),
+            profit=("profit", "sum"),
+            avg_order_value=("avg_order_value", "mean"),
+        )
+        .assign(profit_margin=lambda df: df["profit"] / df["sales"])
+    )
+    print(repeat_summary.round(4))
+
     print_section("Sales Bucket Performance")
     print(
         orders.groupby("sales_bucket", observed=False)
@@ -198,12 +231,32 @@ def main() -> None:
         .round(4)
     )
 
-    print_section("Top 10 Loss-Making Products")
+    print_section("Profit by Category")
     print(
+        orders.groupby("category")
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), avg_discount=("discount", "mean"))
+        .assign(profit_margin=lambda df: df["profit"] / df["sales"])
+        .sort_values("profit", ascending=False)
+        .round(4)
+    )
+
+    print_section("Top 10 Loss-Making Products")
+    product_profitability = (
         orders.groupby(["product_id", "product_name", "category", "sub_category"])
         .agg(sales=("sales", "sum"), profit=("profit", "sum"), avg_discount=("discount", "mean"))
-        .query("profit < 0")
+        .assign(profit_margin=lambda df: df["profit"] / df["sales"])
+    )
+    print(
+        product_profitability.query("profit < 0")
         .sort_values("profit")
+        .head(10)
+        .round(4)
+    )
+
+    print_section("Top 10 Low-Margin Products with Positive Sales")
+    print(
+        product_profitability.query("sales > 0")
+        .sort_values("profit_margin")
         .head(10)
         .round(4)
     )

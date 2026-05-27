@@ -96,6 +96,7 @@ E-Commerce-Data-Analysis-main/
 ├── docs/
 │   ├── data_dictionary.md
 │   ├── data_quality_and_feature_engineering.md
+│   ├── customer_profitability_analysis.md
 │   └── kpi_framework.md
 ├── E-Commerce Data Analysis.pbix
 ├── E-Commerce Data Analysis.pdf
@@ -117,6 +118,9 @@ E-Commerce-Data-Analysis-main/
 - Measured sales by customer segment.
 - Identified top customers by revenue and profit.
 - Compared consumer, corporate, and home office performance.
+- Flagged repeat customers and compared repeat vs one-time customer contribution.
+- Calculated basic customer lifetime value using total customer sales.
+- Analyzed sales by customer type and customer segment.
 
 ### 3. Product & Category Trends
 
@@ -129,6 +133,9 @@ E-Commerce-Data-Analysis-main/
 - Calculated profit margin.
 - Compared profitable and loss-making products.
 - Analyzed regions and categories with negative profit.
+- Compared profit by category and sub-category.
+- Identified low-margin products.
+- Measured discount impact on profit margin.
 
 ### 5. Regional Performance
 
@@ -168,6 +175,13 @@ E-Commerce-Data-Analysis-main/
 - Standardized category, segment, market, region, and ship-mode labels.
 - Created `order_year`, `order_month`, `shipping_delay`, `profit_margin`, `customer_segment`, `sales_bucket`, `discount_band`, and `is_returned`.
 
+### 10. Customer & Profitability Depth
+
+- Ranked top customers by sales, profit, and basic customer lifetime value.
+- Compared repeat customers against one-time customers.
+- Analyzed Consumer, Corporate, and Home Office segment performance.
+- Identified profit by category, loss-making products, low-margin products, and discount-sensitive product groups.
+
 ## Business Insights
 
 - **APAC is the highest revenue-generating market**, followed by EU and the US.
@@ -178,6 +192,8 @@ E-Commerce-Data-Analysis-main/
 - **Discounting requires careful control**, because higher discounts can reduce or reverse profit margins.
 - **High sales should not be treated as success by itself**; category, market, and customer performance must be evaluated together with profit margin.
 - **Returns and shipping cost are operational levers** that can directly affect both customer experience and profitability.
+- **Repeat customers represent a major retention signal**, making customer loyalty and repeat purchase behavior important for future growth.
+- **Low-margin and loss-making products should be reviewed before scaling promotions**, because discount-driven revenue can weaken total profit.
 
 ## Recommendations
 
@@ -187,6 +203,8 @@ E-Commerce-Data-Analysis-main/
 - Optimize shipping strategy by monitoring Standard Class volume and shipping cost.
 - Focus category-level strategy on Technology growth while improving Furniture profitability.
 - Track returned orders to identify product, region, or shipping-related quality issues.
+- Build retention campaigns around high-value and repeat customers.
+- Review low-margin products for pricing, discount, or sourcing improvements.
 
 ## Business Conclusion
 
@@ -251,4 +269,5 @@ jupyter notebook python/analysis.ipynb
 | `python/ecommerce_eda.py` | Python EDA and feature engineering script |
 | `docs/data_dictionary.md` | Data dictionary |
 | `docs/data_quality_and_feature_engineering.md` | Data cleaning checks and engineered feature documentation |
+| `docs/customer_profitability_analysis.md` | Customer analytics and profitability analysis methodology |
 | `docs/kpi_framework.md` | KPI definitions, formulas, and current KPI snapshot |

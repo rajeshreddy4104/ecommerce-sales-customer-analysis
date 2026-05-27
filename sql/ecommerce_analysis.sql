@@ -413,3 +413,171 @@ SELECT
     RANK() OVER(PARTITION BY category ORDER BY total_profit ASC) AS profit_risk_rank
 FROM category_discount
 ORDER BY category, profit_risk_rank;
+
+-- 23. Customer lifetime value, repeat customer flag, and customer ranking
+WITH customer_metrics AS (
+    SELECT
+        customer_id,
+        customer_name,
+        segment,
+        COUNT(DISTINCT order_id) AS total_orders,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        ROUND(SUM(sales) / NULLIF(COUNT(DISTINCT order_id), 0), 2) AS average_order_value,
+        ROUND(SUM(sales), 2) AS basic_customer_lifetime_value
+    FROM orders
+    GROUP BY customer_id, customer_name, segment
+)
+SELECT
+    customer_id,
+    customer_name,
+    segment,
+    total_orders,
+    total_sales,
+    total_profit,
+    average_order_value,
+    basic_customer_lifetime_value,
+    CASE WHEN total_orders > 1 THEN 'Repeat Customer' ELSE 'One-Time Customer' END AS customer_type,
+    RANK() OVER(ORDER BY total_sales DESC) AS sales_rank
+FROM customer_metrics
+ORDER BY sales_rank
+LIMIT 25;
+
+-- 24. Repeat customer rate and revenue contribution
+WITH customer_metrics AS (
+    SELECT
+        customer_id,
+        COUNT(DISTINCT order_id) AS total_orders,
+        SUM(sales) AS total_sales,
+        SUM(profit) AS total_profit
+    FROM orders
+    GROUP BY customer_id
+),
+customer_type_summary AS (
+    SELECT
+        CASE WHEN total_orders > 1 THEN 'Repeat Customer' ELSE 'One-Time Customer' END AS customer_type,
+        COUNT(*) AS customers,
+        ROUND(SUM(total_sales), 2) AS total_sales,
+        ROUND(SUM(total_profit), 2) AS total_profit
+    FROM customer_metrics
+    GROUP BY CASE WHEN total_orders > 1 THEN 'Repeat Customer' ELSE 'One-Time Customer' END
+)
+SELECT
+    customer_type,
+    customers,
+    total_sales,
+    total_profit,
+    ROUND(customers / NULLIF(SUM(customers) OVER(), 0), 4) AS customer_share,
+    ROUND(total_sales / NULLIF(SUM(total_sales) OVER(), 0), 4) AS sales_share,
+    ROUND(total_profit / NULLIF(SUM(total_profit) OVER(), 0), 4) AS profit_share
+FROM customer_type_summary
+ORDER BY total_sales DESC;
+
+-- 25. Segment-level customer analytics
+WITH customer_metrics AS (
+    SELECT
+        customer_id,
+        segment,
+        COUNT(DISTINCT order_id) AS total_orders,
+        SUM(sales) AS total_sales,
+        SUM(profit) AS total_profit
+    FROM orders
+    GROUP BY customer_id, segment
+)
+SELECT
+    segment,
+    COUNT(DISTINCT customer_id) AS customers,
+    SUM(total_orders) AS orders,
+    ROUND(SUM(total_sales), 2) AS total_sales,
+    ROUND(SUM(total_profit), 2) AS total_profit,
+    ROUND(SUM(total_sales) / NULLIF(SUM(total_orders), 0), 2) AS average_order_value,
+    ROUND(SUM(total_profit) / NULLIF(SUM(total_sales), 0), 4) AS profit_margin,
+    ROUND(AVG(total_sales), 2) AS avg_basic_clv
+FROM customer_metrics
+GROUP BY segment
+ORDER BY total_sales DESC;
+
+-- 26. Profit by category and sub-category with contribution
+WITH product_group_profit AS (
+    SELECT
+        category,
+        sub_category,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        ROUND(AVG(discount), 4) AS avg_discount
+    FROM orders
+    GROUP BY category, sub_category
+)
+SELECT
+    category,
+    sub_category,
+    total_sales,
+    total_profit,
+    avg_discount,
+    ROUND(total_profit / NULLIF(total_sales, 0), 4) AS profit_margin,
+    ROUND(total_profit / NULLIF(SUM(total_profit) OVER(), 0), 4) AS profit_contribution_pct,
+    RANK() OVER(PARTITION BY category ORDER BY total_profit DESC) AS profit_rank_in_category
+FROM product_group_profit
+ORDER BY total_profit DESC;
+
+-- 27. Low-margin products
+WITH product_profit AS (
+    SELECT
+        product_id,
+        product_name,
+        category,
+        sub_category,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        ROUND(AVG(discount), 4) AS avg_discount
+    FROM orders
+    GROUP BY product_id, product_name, category, sub_category
+)
+SELECT
+    product_id,
+    product_name,
+    category,
+    sub_category,
+    total_sales,
+    total_profit,
+    avg_discount,
+    ROUND(total_profit / NULLIF(total_sales, 0), 4) AS profit_margin
+FROM product_profit
+WHERE total_sales > 0
+ORDER BY profit_margin ASC, total_profit ASC
+LIMIT 25;
+
+-- 28. Discount vs profit analysis by product category
+WITH discount_category_profit AS (
+    SELECT
+        category,
+        CASE
+            WHEN discount = 0 THEN 'No Discount'
+            WHEN discount > 0 AND discount <= 0.10 THEN '0-10%'
+            WHEN discount > 0.10 AND discount <= 0.20 THEN '10-20%'
+            WHEN discount > 0.20 AND discount <= 0.30 THEN '20-30%'
+            ELSE '30%+'
+        END AS discount_band,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        COUNT(*) AS line_items
+    FROM orders
+    GROUP BY
+        category,
+        CASE
+            WHEN discount = 0 THEN 'No Discount'
+            WHEN discount > 0 AND discount <= 0.10 THEN '0-10%'
+            WHEN discount > 0.10 AND discount <= 0.20 THEN '10-20%'
+            WHEN discount > 0.20 AND discount <= 0.30 THEN '20-30%'
+            ELSE '30%+'
+        END
+)
+SELECT
+    category,
+    discount_band,
+    line_items,
+    total_sales,
+    total_profit,
+    ROUND(total_profit / NULLIF(total_sales, 0), 4) AS profit_margin
+FROM discount_category_profit
+ORDER BY category, profit_margin ASC;
