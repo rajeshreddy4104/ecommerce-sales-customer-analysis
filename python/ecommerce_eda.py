@@ -105,6 +105,24 @@ def print_section(title: str) -> None:
     print(f"\n{'=' * 80}\n{title}\n{'=' * 80}")
 
 
+def calculate_kpis(orders: pd.DataFrame) -> dict[str, float | str]:
+    total_sales = orders["sales"].sum()
+    total_profit = orders["profit"].sum()
+    total_orders = orders["order_id"].nunique()
+    customer_order_counts = orders.groupby("customer_id")["order_id"].nunique()
+
+    return {
+        "Total Sales": total_sales,
+        "Total Profit": total_profit,
+        "Total Orders": total_orders,
+        "Average Order Value": total_sales / total_orders,
+        "Profit Margin %": total_profit / total_sales,
+        "Top Region": orders.groupby("region")["sales"].sum().idxmax(),
+        "Top Category": orders.groupby("category")["sales"].sum().idxmax(),
+        "Repeat Customer Rate": (customer_order_counts > 1).mean(),
+    }
+
+
 def main() -> None:
     orders, returns, people = load_data()
     orders = add_features(orders, returns)
@@ -117,16 +135,14 @@ def main() -> None:
     print(f"Date range: {orders['order_date'].min().date()} to {orders['order_date'].max().date()}")
 
     print_section("Overall KPIs")
-    kpis = {
-        "Total Sales": orders["sales"].sum(),
-        "Total Profit": orders["profit"].sum(),
-        "Total Quantity": orders["quantity"].sum(),
-        "Total Shipping Cost": orders["shipping_cost"].sum(),
-        "Profit Margin": orders["profit"].sum() / orders["sales"].sum(),
-        "Return Rate": orders["is_returned"].mean(),
-    }
+    kpis = calculate_kpis(orders)
     for metric, value in kpis.items():
-        print(f"{metric}: {value:,.4f}" if "Rate" in metric or "Margin" in metric else f"{metric}: {value:,.2f}")
+        if isinstance(value, str):
+            print(f"{metric}: {value}")
+        elif "Rate" in metric or "%" in metric:
+            print(f"{metric}: {value:.2%}")
+        else:
+            print(f"{metric}: {value:,.2f}")
 
     print_section("Sales by Category")
     print(

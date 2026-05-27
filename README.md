@@ -66,9 +66,20 @@ Key fields include:
 | --- | ---: |
 | Total Sales | 12.64M |
 | Total Profit | 1.47M |
+| Total Orders | 25,035 |
+| Average Order Value | 504.99 |
+| Profit Margin % | 11.61% |
+| Top Region | Central |
+| Top Category | Technology |
+| Repeat Customer Rate | 99.37% |
+
+Additional operational metrics:
+
+| Metric | Value |
+| --- | ---: |
 | Total Quantity | 178.31K |
 | Total Shipping Cost | 1.35M |
-| Total Orders / Rows | 51,290 |
+| Order Line Items | 51,290 |
 | Returned Orders | 1,173 |
 
 ## Project Architecture
@@ -84,7 +95,8 @@ E-Commerce-Data-Analysis-main/
 │   └── ecommerce_eda.py
 ├── docs/
 │   ├── data_dictionary.md
-│   └── data_quality_and_feature_engineering.md
+│   ├── data_quality_and_feature_engineering.md
+│   └── kpi_framework.md
 ├── E-Commerce Data Analysis.pbix
 ├── E-Commerce Data Analysis.pdf
 ├── E-Commerce Data Analysis_page.jpg
@@ -96,7 +108,7 @@ E-Commerce-Data-Analysis-main/
 
 ### 1. Sales Performance
 
-- Calculated total sales, profit, quantity, and shipping cost.
+- Calculated total sales, profit, total orders, average order value, and profit margin.
 - Analyzed sales trends by year and month.
 - Identified high-performing markets, countries, and states.
 
@@ -239,3 +251,4 @@ jupyter notebook python/analysis.ipynb
 | `python/ecommerce_eda.py` | Python EDA and feature engineering script |
 | `docs/data_dictionary.md` | Data dictionary |
 | `docs/data_quality_and_feature_engineering.md` | Data cleaning checks and engineered feature documentation |
+| `docs/kpi_framework.md` | KPI definitions, formulas, and current KPI snapshot |
