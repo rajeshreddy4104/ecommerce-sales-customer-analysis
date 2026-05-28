@@ -17,7 +17,9 @@ The analysis helps answer business questions such as:
 
 ## Dashboard Preview
 
-![E-Commerce Sales Dashboard](E-Commerce%20Data%20Analysis_page.jpg)
+![E-Commerce Sales Dashboard](assets/screenshots/ecommerce_dashboard_preview.jpg)
+
+> Note: the current Power BI file is kept as a reference export. A new dashboard will be built as the final project step using the completed SQL and Python analysis.
 
 ## Project Goal
 
@@ -84,24 +86,41 @@ Additional operational metrics:
 
 ## Project Architecture
 
+```mermaid
+flowchart LR
+    A[Excel Dataset] --> B[SQL Analysis]
+    A --> C[Python EDA]
+    B --> D[Business KPIs]
+    C --> D
+    D --> E[Power BI Dashboard]
+    E --> F[Insights & Recommendations]
+```
+
 ```text
-E-Commerce-Data-Analysis-main/
-├── Data & Resources/
-│   └── ECOMM DATA.xlsx
+ecommerce-sales-customer-analysis/
+├── data/
+│   └── ecommerce_data.xlsx
 ├── sql/
 │   └── ecommerce_analysis.sql
-├── python/
+├── notebooks/
 │   ├── analysis.ipynb
 │   └── ecommerce_eda.py
+├── assets/
+│   └── screenshots/
+│       └── ecommerce_dashboard_preview.jpg
+├── dashboards/
+│   ├── ecommerce_sales_dashboard_reference.pbix
+│   └── ecommerce_sales_dashboard_reference.pdf
 ├── docs/
 │   ├── data_dictionary.md
+│   ├── project_architecture.md
 │   ├── data_quality_and_feature_engineering.md
 │   ├── customer_profitability_analysis.md
+│   ├── time_series_regional_analysis.md
+│   ├── dashboard_interactivity.md
 │   └── kpi_framework.md
-├── E-Commerce Data Analysis.pbix
-├── E-Commerce Data Analysis.pdf
-├── E-Commerce Data Analysis_page.jpg
 ├── requirements.txt
+├── LICENSE
 └── README.md
 ```
 
@@ -142,6 +161,9 @@ E-Commerce-Data-Analysis-main/
 - Compared sales across APAC, EU, US, LATAM, EMEA, Africa, and Canada.
 - Identified top countries and states.
 - Evaluated market-level contribution to total sales.
+- Added region-wise profit and margin analysis.
+- Added state-wise sales and city performance analysis.
+- Added regional growth trends by year.
 
 ### 6. Discount Impact
 
@@ -182,6 +204,21 @@ E-Commerce-Data-Analysis-main/
 - Analyzed Consumer, Corporate, and Home Office segment performance.
 - Identified profit by category, loss-making products, low-margin products, and discount-sensitive product groups.
 
+### 11. Time-Series Analysis
+
+- Built monthly sales and profit trends.
+- Added yearly sales, profit, order, and margin trend analysis.
+- Added a 3-month moving average to smooth monthly sales volatility.
+- Analyzed seasonality by calendar month.
+- Ranked peak sales periods by monthly revenue.
+
+### 12. Regional Analysis Depth
+
+- Compared region-wise profit, sales, orders, and profit margin.
+- Ranked top states by sales and profit.
+- Ranked top cities by sales, profit, orders, and margin.
+- Measured regional year-over-year sales growth.
+
 ## Business Insights
 
 - **APAC is the highest revenue-generating market**, followed by EU and the US.
@@ -212,13 +249,15 @@ The dashboard and analysis show that the business has strong global revenue pote
 
 ## Power BI Dashboard Features
 
-- KPI cards for sales, profit, quantity, and shipping cost
-- Category, ship mode, and market filters
-- Sales by country
-- Sales by state
-- Sales by category
-- Sales by market
-- Sales by shipping mode
+The final Power BI dashboard will include:
+
+- KPI cards for total sales, total profit, total orders, AOV, profit margin, and repeat customer rate
+- Slicers for date, region, market, category, segment, ship mode, customer type, and discount band
+- Drill-downs from category to sub-category to product
+- Drill-downs from region to state to city
+- Filters for returned orders, discount bands, sales buckets, and customer type
+- Interactive visuals for trend analysis, product performance, customer analytics, profitability, and regional performance
+- Cross-filtering so selecting one chart updates the rest of the dashboard
 
 ## Skills Demonstrated
 
@@ -233,7 +272,7 @@ The dashboard and analysis show that the business has strong global revenue pote
 
 ## How to Use This Project
 
-1. Open `Data & Resources/ECOMM DATA.xlsx` to review the source dataset.
+1. Open `data/ecommerce_data.xlsx` to review the source dataset.
 2. Run SQL queries from `sql/ecommerce_analysis.sql` after importing the data into a SQL database.
 3. Install Python dependencies:
 
@@ -244,30 +283,33 @@ pip install -r requirements.txt
 4. Run Python EDA:
 
 ```bash
-python python/ecommerce_eda.py
+python notebooks/ecommerce_eda.py
 ```
 
 5. Open the notebook:
 
 ```bash
-jupyter notebook python/analysis.ipynb
+jupyter notebook notebooks/analysis.ipynb
 ```
 
-6. Open `E-Commerce Data Analysis.pbix` in Power BI Desktop to explore the dashboard.
-7. Review `E-Commerce Data Analysis.pdf` for the exported dashboard report.
+6. Review the reference dashboard files in `dashboards/`.
+7. Build the final Power BI dashboard using the completed KPI framework and analysis outputs.
 
 ## Project Files
 
 | File | Description |
 | --- | --- |
-| `E-Commerce Data Analysis.pbix` | Power BI dashboard file |
-| `E-Commerce Data Analysis.pdf` | Exported dashboard report |
-| `E-Commerce Data Analysis_page.jpg` | Dashboard preview image |
-| `Data & Resources/ECOMM DATA.xlsx` | Source dataset |
+| `dashboards/ecommerce_sales_dashboard_reference.pbix` | Reference Power BI dashboard file |
+| `dashboards/ecommerce_sales_dashboard_reference.pdf` | Reference exported dashboard report |
+| `assets/screenshots/ecommerce_dashboard_preview.jpg` | Dashboard preview image |
+| `data/ecommerce_data.xlsx` | Source dataset |
 | `sql/ecommerce_analysis.sql` | SQL business analysis queries with CTEs, joins, subqueries, rankings, and window functions |
-| `python/analysis.ipynb` | Python EDA notebook with cleaning, KPIs, charts, and insights |
-| `python/ecommerce_eda.py` | Python EDA and feature engineering script |
+| `notebooks/analysis.ipynb` | Python EDA notebook with cleaning, KPIs, charts, and insights |
+| `notebooks/ecommerce_eda.py` | Python EDA and feature engineering script |
 | `docs/data_dictionary.md` | Data dictionary |
+| `docs/project_architecture.md` | Workflow and architecture documentation |
 | `docs/data_quality_and_feature_engineering.md` | Data cleaning checks and engineered feature documentation |
 | `docs/customer_profitability_analysis.md` | Customer analytics and profitability analysis methodology |
+| `docs/time_series_regional_analysis.md` | Time-series and regional analysis methodology |
+| `docs/dashboard_interactivity.md` | Planned Power BI dashboard interactivity |
 | `docs/kpi_framework.md` | KPI definitions, formulas, and current KPI snapshot |

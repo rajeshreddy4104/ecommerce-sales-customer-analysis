@@ -581,3 +581,163 @@ SELECT
     ROUND(total_profit / NULLIF(total_sales, 0), 4) AS profit_margin
 FROM discount_category_profit
 ORDER BY category, profit_margin ASC;
+
+-- ============================================================================
+-- Time-Series and Regional Analysis
+-- These queries support trend analysis, seasonality, peak sales periods, and
+-- deeper geography-based dashboard pages.
+-- ============================================================================
+
+-- 29. Monthly sales trend with 3-month moving average
+WITH monthly_sales AS (
+    SELECT
+        YEAR(order_date) AS order_year,
+        MONTH(order_date) AS order_month,
+        DATE_FORMAT(order_date, '%Y-%m') AS year_month,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        COUNT(DISTINCT order_id) AS total_orders
+    FROM orders
+    GROUP BY
+        YEAR(order_date),
+        MONTH(order_date),
+        DATE_FORMAT(order_date, '%Y-%m')
+)
+SELECT
+    order_year,
+    order_month,
+    year_month,
+    total_sales,
+    total_profit,
+    total_orders,
+    ROUND(
+        AVG(total_sales) OVER(
+            ORDER BY order_year, order_month
+            ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+        ),
+        2
+    ) AS moving_avg_sales_3_month
+FROM monthly_sales
+ORDER BY order_year, order_month;
+
+-- 30. Yearly sales, profit, and growth trend
+WITH yearly_sales AS (
+    SELECT
+        YEAR(order_date) AS order_year,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        COUNT(DISTINCT order_id) AS total_orders
+    FROM orders
+    GROUP BY YEAR(order_date)
+),
+yearly_growth AS (
+    SELECT
+        yearly_sales.*,
+        LAG(total_sales) OVER(ORDER BY order_year) AS previous_year_sales
+    FROM yearly_sales
+)
+SELECT
+    order_year,
+    total_sales,
+    total_profit,
+    total_orders,
+    ROUND(total_profit / NULLIF(total_sales, 0), 4) AS profit_margin,
+    ROUND((total_sales - previous_year_sales) / NULLIF(previous_year_sales, 0), 4) AS yoy_sales_growth
+FROM yearly_growth
+ORDER BY order_year;
+
+-- 31. Seasonality by calendar month
+SELECT
+    MONTH(order_date) AS order_month,
+    MONTHNAME(order_date) AS month_name,
+    ROUND(SUM(sales), 2) AS total_sales,
+    ROUND(SUM(profit), 2) AS total_profit,
+    COUNT(DISTINCT order_id) AS total_orders,
+    ROUND(SUM(sales) / NULLIF(COUNT(DISTINCT order_id), 0), 2) AS average_order_value
+FROM orders
+GROUP BY MONTH(order_date), MONTHNAME(order_date)
+ORDER BY total_sales DESC;
+
+-- 32. Peak sales periods
+WITH monthly_sales AS (
+    SELECT
+        DATE_FORMAT(order_date, '%Y-%m') AS year_month,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit,
+        COUNT(DISTINCT order_id) AS total_orders
+    FROM orders
+    GROUP BY DATE_FORMAT(order_date, '%Y-%m')
+)
+SELECT
+    year_month,
+    total_sales,
+    total_profit,
+    total_orders,
+    RANK() OVER(ORDER BY total_sales DESC) AS peak_sales_rank
+FROM monthly_sales
+ORDER BY peak_sales_rank
+LIMIT 10;
+
+-- 33. Region-wise profit and margin
+SELECT
+    region,
+    ROUND(SUM(sales), 2) AS total_sales,
+    ROUND(SUM(profit), 2) AS total_profit,
+    COUNT(DISTINCT order_id) AS total_orders,
+    ROUND(SUM(profit) / NULLIF(SUM(sales), 0), 4) AS profit_margin
+FROM orders
+GROUP BY region
+ORDER BY total_profit DESC;
+
+-- 34. State-wise sales and profit
+SELECT
+    country,
+    state,
+    ROUND(SUM(sales), 2) AS total_sales,
+    ROUND(SUM(profit), 2) AS total_profit,
+    COUNT(DISTINCT order_id) AS total_orders,
+    ROUND(SUM(profit) / NULLIF(SUM(sales), 0), 4) AS profit_margin
+FROM orders
+GROUP BY country, state
+ORDER BY total_sales DESC
+LIMIT 25;
+
+-- 35. City performance
+SELECT
+    country,
+    state,
+    city,
+    ROUND(SUM(sales), 2) AS total_sales,
+    ROUND(SUM(profit), 2) AS total_profit,
+    COUNT(DISTINCT order_id) AS total_orders,
+    ROUND(SUM(profit) / NULLIF(SUM(sales), 0), 4) AS profit_margin
+FROM orders
+GROUP BY country, state, city
+ORDER BY total_sales DESC
+LIMIT 25;
+
+-- 36. Regional growth trends
+WITH region_year AS (
+    SELECT
+        region,
+        YEAR(order_date) AS order_year,
+        ROUND(SUM(sales), 2) AS total_sales,
+        ROUND(SUM(profit), 2) AS total_profit
+    FROM orders
+    GROUP BY region, YEAR(order_date)
+),
+region_growth AS (
+    SELECT
+        region_year.*,
+        LAG(total_sales) OVER(PARTITION BY region ORDER BY order_year) AS previous_year_sales
+    FROM region_year
+)
+SELECT
+    region,
+    order_year,
+    total_sales,
+    total_profit,
+    ROUND(total_profit / NULLIF(total_sales, 0), 4) AS profit_margin,
+    ROUND((total_sales - previous_year_sales) / NULLIF(previous_year_sales, 0), 4) AS yoy_sales_growth
+FROM region_growth
+ORDER BY region, order_year;

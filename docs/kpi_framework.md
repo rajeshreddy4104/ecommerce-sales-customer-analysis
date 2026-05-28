@@ -25,4 +25,3 @@ This project tracks a core set of business KPIs for e-commerce performance.
 | Top Region | Central |
 | Top Category | Technology |
 | Repeat Customer Rate | 99.37% |
-

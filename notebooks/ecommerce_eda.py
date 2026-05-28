@@ -1,7 +1,7 @@
 """Exploratory data analysis for the e-commerce analytics project.
 
 Run:
-    python python/ecommerce_eda.py
+    python notebooks/ecommerce_eda.py
 """
 
 from pathlib import Path
@@ -10,7 +10,7 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = ROOT / "Data & Resources" / "ECOMM DATA.xlsx"
+DATA_PATH = ROOT / "data" / "ecommerce_data.xlsx"
 
 
 def clean_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -50,6 +50,7 @@ def add_features(orders: pd.DataFrame, returns: pd.DataFrame) -> pd.DataFrame:
     orders["order_year"] = orders["order_date"].dt.year
     orders["order_month"] = orders["order_date"].dt.month
     orders["order_month_name"] = orders["order_date"].dt.strftime("%b")
+    orders["year_month"] = orders["order_date"].dt.to_period("M").astype(str)
     orders["shipping_delay"] = (orders["ship_date"] - orders["order_date"]).dt.days
     orders["profit_margin"] = orders["profit"] / orders["sales"]
     orders["customer_segment"] = orders["segment"]
@@ -168,6 +169,72 @@ def main() -> None:
         .head(10)
         .round(2)
     )
+
+    print_section("Monthly Sales Trend with 3-Month Moving Average")
+    monthly_trend = (
+        orders.groupby("year_month")
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), orders=("order_id", "nunique"))
+        .sort_index()
+    )
+    monthly_trend["sales_moving_avg_3m"] = monthly_trend["sales"].rolling(window=3, min_periods=1).mean()
+    print(monthly_trend.tail(12).round(2))
+
+    print_section("Yearly Sales and Profit Trend")
+    print(
+        orders.groupby("order_year")
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), orders=("order_id", "nunique"))
+        .assign(profit_margin=lambda df: df["profit"] / df["sales"])
+        .round(4)
+    )
+
+    print_section("Seasonality by Month")
+    print(
+        orders.groupby("order_month")
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), orders=("order_id", "nunique"))
+        .assign(avg_sales_per_order=lambda df: df["sales"] / df["orders"])
+        .sort_values("sales", ascending=False)
+        .round(2)
+    )
+
+    print_section("Peak Sales Periods")
+    print(monthly_trend.sort_values("sales", ascending=False).head(10).round(2))
+
+    print_section("Region-Wise Profit")
+    print(
+        orders.groupby("region")
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), orders=("order_id", "nunique"))
+        .assign(profit_margin=lambda df: df["profit"] / df["sales"])
+        .sort_values("profit", ascending=False)
+        .round(4)
+    )
+
+    print_section("Top 10 States by Sales")
+    print(
+        orders.groupby(["country", "state"])
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), orders=("order_id", "nunique"))
+        .sort_values("sales", ascending=False)
+        .head(10)
+        .round(2)
+    )
+
+    print_section("Top 10 Cities by Sales")
+    print(
+        orders.groupby(["country", "city"])
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"), orders=("order_id", "nunique"))
+        .sort_values("sales", ascending=False)
+        .head(10)
+        .round(2)
+    )
+
+    print_section("Regional Growth Trends")
+    region_year = (
+        orders.groupby(["region", "order_year"])
+        .agg(sales=("sales", "sum"), profit=("profit", "sum"))
+        .reset_index()
+        .sort_values(["region", "order_year"])
+    )
+    region_year["yoy_sales_growth"] = region_year.groupby("region")["sales"].pct_change()
+    print(region_year.round(4))
 
     print_section("Customer Segment Performance")
     print(
