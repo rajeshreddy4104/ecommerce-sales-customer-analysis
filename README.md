@@ -131,7 +131,6 @@ ecommerce-sales-customer-analysis/
 │   ├── powerbi_dashboard_review.md
 │   └── kpi_framework.md
 ├── requirements.txt
-├── LICENSE
 └── README.md
 ```
 
