@@ -17,9 +17,17 @@ The analysis helps answer business questions such as:
 
 ## Dashboard Preview
 
-![E-Commerce Sales Dashboard](assets/screenshots/ecommerce_dashboard_preview.jpg)
+### Executive Overview
 
-> Note: the current Power BI file is kept as a reference export. A new dashboard will be built as the final project step using the completed SQL and Python analysis.
+![Executive Overview Dashboard](assets/screenshots/executive_overview.png)
+
+### Product Analysis
+
+![Product Analysis Dashboard](assets/screenshots/product_analysis.png)
+
+### Customer & Market Analysis
+
+![Customer and Market Analysis Dashboard](assets/screenshots/customer_market_analysis.png)
 
 ## Project Goal
 
@@ -107,10 +115,12 @@ ecommerce-sales-customer-analysis/
 │   └── ecommerce_eda.py
 ├── assets/
 │   └── screenshots/
-│       └── ecommerce_dashboard_preview.jpg
+│       ├── executive_overview.png
+│       ├── product_analysis.png
+│       └── customer_market_analysis.png
 ├── dashboards/
-│   ├── ecommerce_sales_dashboard_reference.pbix
-│   └── ecommerce_sales_dashboard_reference.pdf
+│   ├── ecommerce_sales_customer_dashboard.pbix
+│   └── ecommerce_sales_customer_dashboard.pdf
 ├── docs/
 │   ├── data_dictionary.md
 │   ├── project_architecture.md
@@ -118,6 +128,7 @@ ecommerce-sales-customer-analysis/
 │   ├── customer_profitability_analysis.md
 │   ├── time_series_regional_analysis.md
 │   ├── dashboard_interactivity.md
+│   ├── powerbi_dashboard_review.md
 │   └── kpi_framework.md
 ├── requirements.txt
 ├── LICENSE
@@ -249,7 +260,9 @@ The dashboard and analysis show that the business has strong global revenue pote
 
 ## Power BI Dashboard Features
 
-The final Power BI dashboard will include:
+The current Power BI dashboard draft includes KPI cards, slicers, sales trends, category analysis, product analysis, market analysis, ship mode analysis, and customer segment contribution.
+
+The final polished dashboard should include:
 
 - KPI cards for total sales, total profit, total orders, AOV, profit margin, and repeat customer rate
 - Slicers for date, region, market, category, segment, ship mode, customer type, and discount band
@@ -292,16 +305,18 @@ python notebooks/ecommerce_eda.py
 jupyter notebook notebooks/analysis.ipynb
 ```
 
-6. Review the reference dashboard files in `dashboards/`.
-7. Build the final Power BI dashboard using the completed KPI framework and analysis outputs.
+6. Open `dashboards/ecommerce_sales_customer_dashboard.pbix` to review or extend the Power BI dashboard.
+7. Review `dashboards/ecommerce_sales_customer_dashboard.pdf` for the exported dashboard report.
 
 ## Project Files
 
 | File | Description |
 | --- | --- |
-| `dashboards/ecommerce_sales_dashboard_reference.pbix` | Reference Power BI dashboard file |
-| `dashboards/ecommerce_sales_dashboard_reference.pdf` | Reference exported dashboard report |
-| `assets/screenshots/ecommerce_dashboard_preview.jpg` | Dashboard preview image |
+| `dashboards/ecommerce_sales_customer_dashboard.pbix` | Final Power BI dashboard file |
+| `dashboards/ecommerce_sales_customer_dashboard.pdf` | Exported Power BI dashboard report |
+| `assets/screenshots/executive_overview.png` | Executive dashboard preview |
+| `assets/screenshots/product_analysis.png` | Product analysis dashboard preview |
+| `assets/screenshots/customer_market_analysis.png` | Customer and market dashboard preview |
 | `data/ecommerce_data.xlsx` | Source dataset |
 | `sql/ecommerce_analysis.sql` | SQL business analysis queries with CTEs, joins, subqueries, rankings, and window functions |
 | `notebooks/analysis.ipynb` | Python EDA notebook with cleaning, KPIs, charts, and insights |
@@ -311,5 +326,6 @@ jupyter notebook notebooks/analysis.ipynb
 | `docs/data_quality_and_feature_engineering.md` | Data cleaning checks and engineered feature documentation |
 | `docs/customer_profitability_analysis.md` | Customer analytics and profitability analysis methodology |
 | `docs/time_series_regional_analysis.md` | Time-series and regional analysis methodology |
-| `docs/dashboard_interactivity.md` | Planned Power BI dashboard interactivity |
+| `docs/dashboard_interactivity.md` | Power BI dashboard interactivity documentation |
+| `docs/powerbi_dashboard_review.md` | Power BI dashboard review and improvement notes |
 | `docs/kpi_framework.md` | KPI definitions, formulas, and current KPI snapshot |
